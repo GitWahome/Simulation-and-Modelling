@@ -1,0 +1,114 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Pre 3.1 Simulation.ipynb",
+      "version": "0.3.2",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/GitWahome/Simulation-and-Modelling/blob/master/CA%20simulation%20H.Sayama%2C%20moded%20for%20Py3.%20%20-%20GOL/Moore%20neighbors%20rules\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "metadata": {
+        "id": "9Gd9xq04Mrvn",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "# Simple CA simulator in Python\n",
+        "#\n",
+        "# *** Hosts & Pathogens ***\n",
+        "#\n",
+        "# Copyright 2008-2012 Hiroki Sayama\n",
+        "# sayama@binghamton.edu\n",
+        "\n",
+        "# Modified to run with Python 3\n",
+        "\n",
+        "import matplotlib\n",
+        "\n",
+        "import pylab as PL\n",
+        "import random as RD\n",
+        "import scipy as SP\n",
+        "\n",
+        "RD.seed()\n",
+        "\n",
+        "width = 50\n",
+        "height = 50\n",
+        "initProb = 0.01\n",
+        "infectionRate = 0.85\n",
+        "regrowthRate = 0.15\n",
+        "\n",
+        "def init():\n",
+        "    global time, config, nextConfig\n",
+        "\n",
+        "    time = 0\n",
+        "    \n",
+        "    config = SP.zeros([height, width])\n",
+        "    for x in range(width):\n",
+        "        for y in range(height):\n",
+        "            if RD.random() < initProb:\n",
+        "                state = 2\n",
+        "            else:\n",
+        "                state = 1\n",
+        "            config[y, x] = state\n",
+        "\n",
+        "    nextConfig = SP.zeros([height, width])\n",
+        "\n",
+        "def draw():\n",
+        "    PL.cla()\n",
+        "    PL.pcolor(config, vmin = 0, vmax = 2, cmap = PL.cm.jet)\n",
+        "    PL.axis('image')\n",
+        "    PL.title('t = ' + str(time))\n",
+        "\n",
+        "def step():\n",
+        "    global time, config, nextConfig\n",
+        "\n",
+        "    time += 1\n",
+        "\n",
+        "    for x in range(width):\n",
+        "        for y in range(height):\n",
+        "            state = config[y, x]\n",
+        "            if state == 0:\n",
+        "                for dx in range(-1, 2):\n",
+        "                    for dy in range(-1, 2):\n",
+        "                        if config[(y+dy)%height, (x+dx)%width] == 1:\n",
+        "                            if RD.random() < regrowthRate:\n",
+        "                                state = 1\n",
+        "            elif state == 1:\n",
+        "                for dx in range(-1, 2):\n",
+        "                    for dy in range(-1, 2):\n",
+        "                        if config[(y+dy)%height, (x+dx)%width] == 2:\n",
+        "                            if RD.random() < infectionRate:\n",
+        "                                state = 2\n",
+        "            else:\n",
+        "                state = 0\n",
+        "\n",
+        "            nextConfig[y, x] = state\n",
+        "\n",
+        "    config, nextConfig = nextConfig, config\n",
+        "\n",
+        "import pycxsimulator\n",
+        "pycxsimulator.GUI().start(func=[init,draw,step])"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
